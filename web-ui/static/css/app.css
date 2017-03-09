@@ -1,0 +1,11 @@
+.slider_css {
+    margin-top: 12px  !important;
+}
+
+.slider_css .webix_slider_left {
+    background-color: #0d8bf2 !important;
+}
+
+.slider_css .webix_slider_right {
+    background-color: #f3efe7 !important;
+}
