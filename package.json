@@ -1,0 +1,22 @@
+{
+  "name": "open-tracker-rpi",
+  "version": "1.0.0",
+  "description": "Open Tracker for Raspberry Pi 3",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://nee77@bitbucket.org/nee77/open-tracker-rpi.git"
+  },
+  "author": "nee",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/nee77/open-tracker-rpi#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "firebase": "^3.7.1",
+    "gps": "^0.2.0",
+    "serialport": "^4.0.7"
+  }
+}
