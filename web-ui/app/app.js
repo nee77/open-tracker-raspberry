@@ -33,30 +33,75 @@ webix.ready(function() {
                     // Карта
                     {
                         id: "map1",
-                        view:"yandex-map",
+                        view:"google-map",
                         center: [55.6225, 37.4548],
-                        zoom: 15,
-                        controls: ["zoomControl"],
-                        mapType: 'yandex#satellite',
-                        gravity: 3
+                        zoom:16,
+                        mapType: 'SATELLITE',
+                        //gravity: 3,
+                        zoomControl: true,
+                        mapTypeControl: true,
+                        scaleControl: false,
+                        streetViewControl: false,
+                        rotateControl: false
                     }
 
                     // Боковая панель с пультом
                     ,{
-                        gravity: 1
-                        ,rows: [
+                        rows: [
+                            {
+                                rows: [
+                                    {
+                                        cols: [
+                                            {
+                                                view: "gage",
+                                                id:"cpu_temp_gage",
+                                                value: 60,
+                                                minRange: 0,
+                                                maxRange: 100,
+                                                label: 'Test label',
+                                                placeholder: "CPU <sup>o</sup>C",
+                                                //height:170,
+                                                scale:5,
+                                                stroke:10
+                                            }
+                                            ,{
+                                                view: "gage",
+                                                id:"cpu_usage_gage",
+                                                value: 60,
+                                                minRange: 0,
+                                                maxRange: 100,
+                                                label: 'Test label',
+                                                placeholder: "CPU загрузка %",
+                                                //height:150,
+                                                scale:5,
+                                                stroke:10
+                                            }
+                                        ]
+                                    }
+                                ]
+                                ,height: 300
+                            }
+                            ,
                             {
                                 template: 'image'
-                            }
-                            ,{
-                                template: 'telemetry'
+                                ,gravity: 1
                             }
                         ]
+                        //,gravity: 1
                     }
                 ]
             }
         ]
     });
+
+    setInterval(function(){
+        let value = Math.floor(Math.random()*100);
+        $$("cpu_temp_gage").setValue(value);
+
+        value = Math.floor(Math.random()*100);
+        $$("cpu_usage_gage").setValue(value);
+
+    }, 2000);
 
 
     let play_in_progress = false;

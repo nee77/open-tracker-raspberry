@@ -25,6 +25,12 @@ pm save
 pm startup
 pm list
 
+
+GPS https://www.npmjs.com/package/gps
+sudo npm install -g octalbonescript gps
+
+
+
 ## Установка hotspot WiFi ##
 
 
