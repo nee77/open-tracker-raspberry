@@ -2,7 +2,6 @@ Open Tracker for Raspberry Pi 3
 
 http://open-tracker.ru
 
-2
 
 Webix Material Skin
 https://github.com/webix-hub/material-design-skin
