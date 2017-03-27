@@ -110,6 +110,7 @@ let gps_data = {
     ,lon: 0 //
     ,alt: 0 //
     ,speed: 0 //
+    ,track: 0
     ,satsActive: 0 //
     ,sats_num: 0 //
     ,satsVisible: 0 //

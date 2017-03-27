@@ -3,19 +3,21 @@ Open Tracker for Raspberry Pi 3
 http://open-tracker.ru
 
 
-Webix Material Skin
-https://github.com/webix-hub/material-design-skin
+Как в Raspberry Pi прописать ID устройства из панели упарвления
+
+sudo nano /etc/environment
+
+Добавить строку:
+
+export OPEN_TRACKER_ID="your_id"
+
+
+
 
 
 ## Install ##
 
-How to mount usb drive
-http://www.raspberrypi-spy.co.uk/2014/05/how-to-mount-a-usb-flash-disk-on-the-raspberry-pi/
-
-
-Node Webcam https://github.com/chuckfairy/node-webcam
-sudo npm install node-webcam -g
-
+npm install
 
 PM2 http://pm2.keymetrics.io
 npm install pm2 -g
@@ -26,10 +28,6 @@ npm install pm2 -g
 pm save
 pm startup
 pm list
-
-
-GPS https://www.npmjs.com/package/gps
-sudo npm install -g octalbonescript gps
 
 
 
