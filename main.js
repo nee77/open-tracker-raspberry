@@ -187,6 +187,7 @@ try {
                 ,lat: gps_data.lat
                 ,lon: gps_data.lon
                 ,speed: gps_data.speed
+                ,track: gps_data.track
                 ,sats: gps_data.satsActive // проверить на клиенте
                 ,satsActive: gps_data.satsActive
                 ,satsVisible: gps_data.satsVisible
