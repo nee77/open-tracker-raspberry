@@ -70,7 +70,7 @@ try {
     });
 
     // Авторизация ручная с логином и паролем
-    firebase.auth().signInWithEmailAndPassword('101@7007.ru', 'x007xx').catch(function(error) {
+    firebase.auth().signInWithEmailAndPassword('email', 'password').catch(function(error) {
         console.log(error);
     });
     */
