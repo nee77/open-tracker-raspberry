@@ -6,6 +6,8 @@ const exec = require('child_process').exec;
 
 const DEVICE_ID = process.env.OPEN_TRACKER_ID;
 
+const SYS_VERSION = '1.0.0';
+
 // Отсюда отправляются все данные
 
 
@@ -62,21 +64,6 @@ try {
     };
 
 
-    /*
-    //
-    // Авторизация анонимная
-    firebase.auth().signInAnonymously().catch(function(error) {
-        console.log(error);
-    });
-
-    // Авторизация ручная с логином и паролем
-    firebase.auth().signInWithEmailAndPassword('email', 'password').catch(function(error) {
-        console.log(error);
-    });
-    */
-
-
-
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             db = firebase.database();
@@ -90,6 +77,18 @@ try {
             ref.onDisconnect().update({
                 status: false,
                 time_disconnected: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            const connectedRef = firebase.database().ref(".info/connected");
+
+            connectedRef.on("value", function(snap) {
+              if (snap.val() === true) {
+                  console.log("connected");
+              } else {
+                  console.log("not connected");
+                  db = null;
+                  init_connection();
+              }
             });
 
         } else {
@@ -141,7 +140,7 @@ try {
     const GPS = require('gps');
     const gps = new GPS;
 
-    gps.on('data', data => {
+    gps.on('data', data => { // TODO поставить таймер сколько времени нет GPS сигнала
         gps_data.satsActive = gps.state.satsActive instanceof Array ? gps.state.satsActive.length : 0;
 
         console.log('data read from ' + gps_data.satsActive + ' sputniks');
@@ -201,6 +200,7 @@ try {
                 ,cpu_temp: system_data.cpu_temp
                 ,memory_use: system_data.memory_use
                 ,uptime: system_data.uptime
+                ,sv: SYS_VERSION
             };
 
             db.ref('devices/' + DEVICE_ID + '/realtime_data/telemetry').set(data_save).then(function(){
@@ -209,19 +209,15 @@ try {
 
             //db.ref('devices/' + DEVICE_ID + '/gps_data').push(data_save);
         }
+        else {
+            console.log('no DB connection');
+        }
     };
 
     setInterval(save_to_fb, 1000);
 
     /*
-    var connectedRef = firebase.database().ref(".info/connected");
-    connectedRef.on("value", function(snap) {
-      if (snap.val() === true) {
-        alert("connected");
-      } else {
-        alert("not connected");
-      }
-    });
+
 
     var offsetRef = firebase.database().ref(".info/serverTimeOffset");
     offsetRef.on("value", function(snap) {
