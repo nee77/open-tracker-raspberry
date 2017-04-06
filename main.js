@@ -36,6 +36,8 @@ try {
     // TODO определить когда рвется соединение не по причине авторизации
 
     const init_connection = function(){
+        console.log('INIT CONNECTION...');
+
         // Авторизация с использованием токена
         // загрузить одноразовый токен с сервера через функцию Firebase
         https.get(token_url + '?device_id=' + DEVICE_ID, (res) => {
@@ -79,23 +81,24 @@ try {
                 time_disconnected: firebase.database.ServerValue.TIMESTAMP
             });
 
-            const connectedRef = firebase.database().ref(".info/connected");
-
-            connectedRef.on("value", function(snap) {
-              if (snap.val() === true) {
-                  console.log("connected");
-              } else {
-                  console.log("not connected");
-                  db = null;
-                  init_connection();
-              }
-            });
-
         } else {
             db = null;
             console.log('user not logged in');
-            init_connection();
+            //init_connection();
         }
+    });
+
+    const connectedRef = firebase.database().ref(".info/connected");
+
+    connectedRef.on("value", function(snap) {
+      if (snap.val() === true) {
+          console.log("connected");
+          db = firebase.database();
+      } else {
+          console.log("not connected");
+          db = null;
+          init_connection();
+      }
     });
 
 }
@@ -143,7 +146,7 @@ try {
     gps.on('data', data => { // TODO поставить таймер сколько времени нет GPS сигнала
         gps_data.satsActive = gps.state.satsActive instanceof Array ? gps.state.satsActive.length : 0;
 
-        console.log('data read from ' + gps_data.satsActive + ' sputniks');
+        console.log('data READ from ' + gps_data.satsActive + ' sputniks');
 
         gps_data.time = gps.state.time;
         gps_data.lat = gps.state.lat;
@@ -204,13 +207,13 @@ try {
             };
 
             db.ref('devices/' + DEVICE_ID + '/realtime_data/telemetry').set(data_save).then(function(){
-                console.log('data saved');
+                console.log('data TRANSMITTED');
             });
 
             //db.ref('devices/' + DEVICE_ID + '/gps_data').push(data_save);
         }
         else {
-            console.log('no DB connection');
+            console.log('NO DB connection');
         }
     };
 
