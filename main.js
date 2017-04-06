@@ -28,6 +28,7 @@ const firebase_config = {
 
 
 let db = null;
+let online = false;
 
 
 try {
@@ -93,10 +94,10 @@ try {
     connectedRef.on("value", function(snap) {
       if (snap.val() === true) {
           console.log("connected");
-          db = firebase.database();
+          online = true;
       } else {
           console.log("not connected");
-          db = null;
+          online = false;
           init_connection();
       }
     });
@@ -182,7 +183,7 @@ try {
 
     // записать данные в FB
     const save_to_fb = function(){
-        if( db ){
+        if( online ){
             let data_save = {
                 device_time: Math.round(+new Date().getTime()/1000)
                 ,gps_time: gps_data.time
