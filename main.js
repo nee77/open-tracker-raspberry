@@ -34,6 +34,7 @@ if( !DEVICE_ID ){
 
 // Инициализируем глобальные переменные
 let online = false,
+    logged_in = false,
     device_token = null,
     device_token_time = 0;
 
@@ -120,6 +121,7 @@ firebase.auth().onAuthStateChanged(function(device) {
     // Устройство подключилось и авторизовалось
     if (device) {
         console.log('INF: device logged in');
+        logged_in = true;
 
         const ref = firebase.database().ref('devices/' + DEVICE_ID + '/realtime_data/online');
         ref.update({
@@ -132,8 +134,8 @@ firebase.auth().onAuthStateChanged(function(device) {
         });
 
     } else {
-        console.log('INF: user not logged out');
-
+        console.log('INF: user logged out');
+        logged_in = false;
         app_auth();
     }
 });
@@ -226,22 +228,22 @@ port.on('data', function(data) {
 
 // Главная функция
 const heartBeat = function(){
-    if( online ){
+    if( online && logged_in ){
         save_to_fb();
-    }
-    else {
-        app_auth();
     }
 
     console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + (gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000) ? 'OK' : 'off') );
 
 };
 
-
-
 setInterval(heartBeat, 1000);
 
 
+const reconnect5m = function(){
+    if( !online || !logged_in ) app_auth();
+};
+
+setInterval(reconnect5m, 5*60*1000);
 
 
 //
