@@ -239,7 +239,7 @@ const heartBeat = function(){
         save_to_fb();
     }
 
-    console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + gps_status ? gps_data.sats + 's' : 'off' );
+    console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + (gps_status ? gps_data.sats + 's' : 'off') );
 
 };
 
