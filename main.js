@@ -228,11 +228,18 @@ port.on('data', function(data) {
 
 // Главная функция
 const heartBeat = function(){
+    let gps_status = gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000);
+
+    if( !gps_status ){
+        gps_data.quality = 'no';
+        gps_data.sats = 0;
+    }
+
     if( online && logged_in ){
         save_to_fb();
     }
 
-    console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + (gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000) ? 'OK' : 'off') );
+    console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + gps_status ? gps_data.sats + 's' : 'off' );
 
 };
 
