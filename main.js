@@ -1,5 +1,5 @@
 //
-const SYS_VERSION = '1.0.0';
+const SYS_VERSION = '1.0.1';
 
 const GPS_SERIAL_PORT = '/dev/ttyUSB0';
 const GPS_SERIAL_BAUDRATE = 4800;
