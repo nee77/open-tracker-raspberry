@@ -189,7 +189,7 @@ const save_to_fb = function(){
 //
 // Соединение с GPS TODO сделать переподключение порта
 //
-const port = new SerialPort(GPS_SERIAL_PORT, { baudrate: GPS_SERIAL_BAUDRATE, parser: SerialPort.parsers.readline('\r\n') });
+
 const gps = new GPS;
 
 // При поступлении данных в GPS обновляем выходные данные
@@ -220,11 +220,31 @@ gps.on('data', data => {
 
 });
 
-// При поступлении данных в порт обновляем GPS
-port.on('data', function(data) {
-    gps.update(data);
+
+//
+// Соединение с портом
+//
+const port = new SerialPort(GPS_SERIAL_PORT, {autoOpen: false, baudrate: GPS_SERIAL_BAUDRATE, parser: SerialPort.parsers.readline('\r\n') });
+
+port.on('open', function(){
+    console.log('INF serial port opened');
+    // При поступлении данных в порт обновляем GPS
+    port.on('data', function(data) {
+        gps.update(data);
+    });
 });
 
+port.on('disconnect', function(error){
+    console.log('ERR: serial port disconnected ' + error);
+    setTimeout(port.open, 5000);
+});
+
+port.on('error', function(error){
+    console.log('ERR: serial port error ' + error);
+});
+
+// Открываем порт для чтения
+port.open();
 
 // Главная функция
 const heartBeat = function(){
@@ -248,6 +268,12 @@ setInterval(heartBeat, 1000);
 
 const reconnect5m = function(){
     if( !online || !logged_in ) app_auth();
+
+    let gps_status = gps_data.last_data_time + 3*60 > Math.round(new Date().getTime()/1000);
+
+    if( !gps_status ){
+        port.close();
+    }
 };
 
 setInterval(reconnect5m, 5*60*1000);
