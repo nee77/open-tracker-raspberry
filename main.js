@@ -187,7 +187,7 @@ const save_to_fb = function(){
 
 
 //
-// Соединение с GPS TODO сделать переподключение порта
+// Соединение с GPS
 //
 
 const gps = new GPS;
@@ -249,17 +249,21 @@ port.open();
 // Главная функция
 const heartBeat = function(){
     let gps_status = gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000);
+    let fb_status = online && logged_in;
 
     if( !gps_status ){
         gps_data.quality = 'no';
         gps_data.sats = 0;
     }
 
-    if( online && logged_in ){
+    if( fb_status ){
         save_to_fb();
     }
+    else {
+        app_auth();
+    }
 
-    console.log('FB: ' + (online ? 'OK' : 'off') + ', GPS: ' + (gps_status ? gps_data.sats + 's' : 'off') );
+    console.log('FB: ' + (fb_status ? 'OK' : 'off') + ', GPS: ' + (gps_status ? gps_data.sats + 's' : 'off') );
 
 };
 
