@@ -233,7 +233,6 @@ gps.on('data', data => {
     }
 
     gps_status =  'data received, s' + gps_data.sats;
-    console.log(gps_status);
 
 });
 
