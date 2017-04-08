@@ -36,7 +36,9 @@ if( !DEVICE_ID ){
 let online = false,
     logged_in = false,
     device_token = null,
-    device_token_time = 0;
+    device_token_time = 0,
+    firebase_status = 'none',
+    gps_status = 'none';
 
 // Полезные данные на выход
 let gps_data = {
@@ -69,35 +71,40 @@ firebase.initializeApp(firebase_config);
 
 // Логин Firebase с помощью одноразового токена
 const firebase_token_login = function(){
-    console.log('INF: Firebase token login');
+    firebase_status =  'token login';
+    console.log(firebase_status);
+
     firebase.auth().signInWithCustomToken(device_token).catch(function(error) {
         // TODO Errors
         // auth/invalid-user-token
         // auth/network-request-failed
         // auth/user-token-expired
-        console.log('ERR: Firebase auth error', error);
+        firebase_status =  'token login ERROR ' + error;
+        console.log(firebase_status);
     });
 };
 
 
 // Функция обращается на сервер и получает токен для устройства
 const get_token = function(){
-    console.log('INF: Getting token');
+    firebase_status =  'fetching token';
+    console.log(firebase_status);
     // загрузить одноразовый токен с сервера через функцию Firebase
     https.get(token_url + '?device_id=' + DEVICE_ID, (res) => {
         if( 200 == res.statusCode ){
             res.on('data', (d) => {
-                console.log('INF: token received');
                 device_token = d.toString();
                 device_token_time = Math.round(new Date().getTime()/1000);
-
+                firebase_status =  'token recevied';
+                console.log(firebase_status);
                 firebase_token_login();
             });
         }
     })
     // Если не получилось соединиться, попробуем через 10 сек
     .on('error', (e) => {
-        console.error('ERR: http request error on getting token', e);
+        firebase_status =  'request token ERROR';
+        console.log(firebase_status);
         setTimeout(get_token, 5000);
     });
 };
@@ -120,7 +127,8 @@ const app_auth = function(){
 firebase.auth().onAuthStateChanged(function(device) {
     // Устройство подключилось и авторизовалось
     if (device) {
-        console.log('INF: device logged in');
+        firebase_status =  'device logged in';
+        console.log(firebase_status);
         logged_in = true;
 
         const ref = firebase.database().ref('devices/' + DEVICE_ID + '/realtime_data/online');
@@ -134,7 +142,8 @@ firebase.auth().onAuthStateChanged(function(device) {
         });
 
     } else {
-        console.log('INF: user logged out');
+        firebase_status =  'device logged out';
+        console.log(firebase_status);
         logged_in = false;
         app_auth();
     }
@@ -144,10 +153,12 @@ firebase.auth().onAuthStateChanged(function(device) {
 // Определение статуса соединения с Firebase
 firebase.database().ref(".info/connected").on("value", function(snap) {
     if (snap.val() === true) {
-        console.log("INF: server connected");
+        firebase_status =  'device connected';
+        console.log(firebase_status);
         online = true;
     } else {
-        console.log("INF: server disconnected");
+        firebase_status =  'device disconnected';
+        console.log(firebase_status);
         online = false;
     }
 });
@@ -177,10 +188,12 @@ const save_to_fb = function(){
 
     firebase.database().ref('devices/' + DEVICE_ID + '/realtime_data/telemetry').set(data_save)
         .then(function(){
-            console.log('INF: data TRANSMITTED');
+            firebase_status =  'data transmitted';
+            console.log(firebase_status);
         })
         .catch(function (error) {
-            console.log('INF: data transmition error ' + error);
+            firebase_status =  'data transmition ERROR ' + error;
+            console.log(firebase_status);
         });
 
 };
@@ -194,6 +207,7 @@ const gps = new GPS;
 
 // При поступлении данных в GPS обновляем выходные данные
 gps.on('data', data => {
+
     gps_data.last_data_time = Math.round(new Date().getTime()/1000);
     gps_data.time = gps.state.time;
     gps_data.lat = gps.state.lat;
@@ -218,6 +232,9 @@ gps.on('data', data => {
         gps_data.mag_var = data.variation;
     }
 
+    gps_status =  'data received, s' + gps_data.sats;
+    console.log(gps_status);
+
 });
 
 
@@ -227,7 +244,8 @@ gps.on('data', data => {
 const port = new SerialPort(GPS_SERIAL_PORT, {autoOpen: false, baudrate: GPS_SERIAL_BAUDRATE, parser: SerialPort.parsers.readline('\r\n') });
 
 port.on('open', function(){
-    console.log('INF serial port opened');
+    gps_status =  'port opened';
+    console.log(gps_status);
     // При поступлении данных в порт обновляем GPS
     port.on('data', function(data) {
         gps.update(data);
@@ -235,12 +253,19 @@ port.on('open', function(){
 });
 
 port.on('disconnect', function(error){
-    console.log('ERR: serial port disconnected ' + error);
+    gps_status =  'port disconnected';
+    console.log(gps_status);
     setTimeout(port.open, 5000);
 });
 
 port.on('error', function(error){
-    console.log('ERR: serial port error ' + error);
+    gps_status =  'port error ' + error;
+    console.log(gps_status);
+});
+
+port.on('close', function(error){
+    gps_status =  'port closed';
+    console.log(gps_status);
 });
 
 // Открываем порт для чтения
@@ -248,22 +273,18 @@ port.open();
 
 // Главная функция
 const heartBeat = function(){
-    let gps_status = gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000);
-    let fb_status = online && logged_in;
+    let gps_active = gps_data.last_data_time + 10 > Math.round(new Date().getTime()/1000);
 
-    if( !gps_status ){
+    if( !gps_active ){
         gps_data.quality = 'no';
         gps_data.sats = 0;
     }
 
-    if( fb_status ){
+    if( online ){
         save_to_fb();
     }
-    else {
-        app_auth();
-    }
 
-    console.log('FB: ' + (fb_status ? 'OK' : 'off') + ', GPS: ' + (gps_status ? gps_data.sats + 's' : 'off') );
+    console.log('FB: ' + firebase_status + ', GPS: ' + gps_status );
 
 };
 
@@ -271,13 +292,18 @@ setInterval(heartBeat, 1000);
 
 
 const reconnect5m = function(){
-    if( !online || !logged_in ) app_auth();
+    if( !logged_in ) app_auth();
 
-    let gps_status = gps_data.last_data_time + 3*60 > Math.round(new Date().getTime()/1000);
+    let gps_active = gps_data.last_data_time + 3*60 > Math.round(new Date().getTime()/1000);
 
-    if( !gps_status ){
+    if( !gps_active ){
         port.close();
     }
+
+    if( !port.isOpen() ){
+        port.open();
+    }
+
 };
 
 setInterval(reconnect5m, 5*60*1000);
