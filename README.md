@@ -126,6 +126,14 @@ ID устройства можно найти в его настройках. П
     pm2 monit
 
 
+## Обновление ##
+
+    cd open-tracker-raspberry
+    git pull origin master
+
+
+
+
 Если у вас возникли вопросы, их можно задать на странице в Github
 https://github.com/nee77/open-tracker-raspberry
 
