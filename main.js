@@ -281,7 +281,7 @@ const heartBeat = function(){
         save_to_fb();
     }
 
-    console.log('FB: ' + firebase_status + ', GPS: ' + gps_status + ', Time: ' + (+new Date()) );
+    console.log('FB: ' + firebase_status + ', GPS: ' + gps_status + ', Time: ' + (new Date().getDate()) );
 
 };
 
