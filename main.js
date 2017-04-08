@@ -277,7 +277,7 @@ const heartBeat = function(){
         gps_data.sats = 0;
     }
 
-    if( online ){
+    if( logged_in ){
         save_to_fb();
     }
 
