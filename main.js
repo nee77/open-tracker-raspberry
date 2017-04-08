@@ -189,11 +189,9 @@ const save_to_fb = function(){
     firebase.database().ref('devices/' + DEVICE_ID + '/realtime_data/telemetry').set(data_save)
         .then(function(){
             firebase_status =  'data transmitted';
-            console.log(firebase_status);
         })
         .catch(function (error) {
             firebase_status =  'data transmition ERROR ' + error;
-            console.log(firebase_status);
         });
 
 };
